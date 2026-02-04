@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mx-auto px-4 py-8 flex-grow">
     <div class="bg-white rounded-xl shadow-lg p-8">
-        <h1 class="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Edit Product</h1>
+        <h1 class="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Modifier le produit</h1>
         
         @if(session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 relative" role="alert">
@@ -32,7 +32,7 @@
             @method('PUT')
             
             <div class="mb-6">
-                <label for="name_produit" class="block text-gray-700 font-medium mb-2">Product Name <span class="text-red-500">*</span></label>
+                <label for="name_produit" class="block text-gray-700 font-medium mb-2">Nom du produit <span class="text-red-500">*</span></label>
                 <input type="text" 
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('name_produit') border-red-500 @enderror" 
                        id="name_produit" 
@@ -57,18 +57,54 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label for="color" class="block text-gray-700 font-medium mb-2">Color</label>
-                    <input type="text" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('color') border-red-500 @enderror" 
-                           id="color" 
-                           name="color" 
-                           value="{{ old('color', $produit->color) }}">
+                    <label class="block text-gray-700 font-medium mb-2">Couleurs</label>
+                    <div id="colors-container">
+                        @if(!empty($produit->color) && count($produit->color) > 0)
+                            @foreach($produit->color as $index => $colorValue)
+                            <div class="flex items-center mb-2">
+                                <input type="text" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('color') border-red-500 @enderror" 
+                                       name="color[]" 
+                                       value="{{ old('color.' . $index, $colorValue) }}" 
+                                       placeholder="Ex : Rouge, Bleu, Noir">
+                                <button type="button" 
+                                        class="ml-2 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg transition duration-300 ease-in-out remove-color-btn">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            @endforeach
+                        @else
+                            <div class="flex items-center mb-2">
+                                <input type="text" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('color') border-red-500 @enderror" 
+                                       name="color[]" 
+                                       value="{{ old('color.0') }}" 
+                                       placeholder="Ex : Rouge, Bleu, Noir">
+                                <button type="button" 
+                                        class="ml-2 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg transition duration-300 ease-in-out remove-color-btn">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+                    <button type="button" 
+                            id="add-color-btn" 
+                            class="mt-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+Ajouter une couleur
+                    </button>
                     @error('color')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="price" class="block text-gray-700 font-medium mb-2">Price (DRH) <span class="text-red-500">*</span></label>
+                    <label for="price" class="block text-gray-700 font-medium mb-2">Prix (DRH) <span class="text-red-500">*</span></label>
                     <input type="number" 
                            step="0.01" 
                            min="0" 
@@ -84,11 +120,11 @@
             </div>
 
             <div class="mb-6">
-                <label for="id_categorie" class="block text-gray-700 font-medium mb-2">Category</label>
+                <label for="id_categorie" class="block text-gray-700 font-medium mb-2">Catégorie</label>
                 <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('id_categorie') border-red-500 @enderror" 
                         id="id_categorie" 
                         name="id_categorie">
-                    <option value="">Select a category (optional)</option>
+                    <option value="">Choisir une catégorie (optionnel)</option>
                     @foreach($categories as $categorie)
                         <option value="{{ $categorie->id_categorie }}" 
                                 {{ old('id_categorie', $produit->id_categorie) == $categorie->id_categorie ? 'selected' : '' }}>
@@ -102,12 +138,12 @@
             </div>
 
             <div class="mb-6">
-                <label for="is_active" class="block text-gray-700 font-medium mb-2">Status</label>
+                <label for="is_active" class="block text-gray-700 font-medium mb-2">Statut</label>
                 <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('is_active') border-red-500 @enderror" 
                         id="is_active" 
                         name="is_active">
-                    <option value="1" {{ old('is_active', $produit->is_active) == 1 ? 'selected' : '' }}>Active</option>
-                    <option value="0" {{ old('is_active', $produit->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
+                    <option value="1" {{ old('is_active', $produit->is_active) == 1 ? 'selected' : '' }}>Actif</option>
+                    <option value="0" {{ old('is_active', $produit->is_active) == 0 ? 'selected' : '' }}>Inactif</option>
                 </select>
                 @error('is_active')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -115,14 +151,14 @@
             </div>
 
             <div class="mb-6">
-                <label for="images" class="block text-gray-700 font-medium mb-2">Product Images</label>
+                <label for="images" class="block text-gray-700 font-medium mb-2">Images du produit</label>
                 <input type="file" 
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('images') border-red-500 @enderror @error('images.*') border-red-500 @enderror" 
                        id="images" 
                        name="images[]" 
                        multiple 
                        accept="image/jpg,image/jpeg,image/png,image/webp">
-                <p class="text-gray-600 text-sm mt-2">You can select multiple images to add. Supported formats: JPG, PNG, JPEG, WebP. Max 2MB each. <span id="image-count" class="text-purple-600 font-medium">{{ $produit->images->count() }} selected</span></p>
+                <p class="text-gray-600 text-sm mt-2">Vous pouvez sélectionner plusieurs images à ajouter. Formats supportés : JPG, PNG, JPEG, WebP. Max 2MB chacune. <span id="image-count" class="text-purple-600 font-medium">{{ $produit->images->count() }} sélectionnées</span></p>
                 @error('images')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -133,7 +169,7 @@
 
             <!-- Combined Image Display Container -->
             <div class="mb-8">
-                <h3 class="text-xl font-semibold mb-4 text-gray-800">Product Images</h3>
+                <h3 class="text-xl font-semibold mb-4 text-gray-800">Images du produit</h3>
                 <div id="image-previews" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     <!-- Existing images -->
                     @foreach($produit->images as $index => $image)
@@ -151,7 +187,7 @@
                                 </button>
                             </div>
                             <div class="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
-                                Existing
+                                Existant
                             </div>
                         </div>
                     @endforeach
@@ -160,10 +196,10 @@
 
             <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
                 <a href="{{ route('produits.show', $produit->id_produit) }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 ease-in-out">
-                    Cancel
+                    Annuler
                 </a>
                 <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 ease-in-out">
-                    Update Product
+                    Mettre à jour le produit
                 </button>
             </div>
         </form>
@@ -215,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </button>
                     </div>
                     <div class="absolute top-1 left-1 bg-purple-600 text-white text-xs px-1 rounded">
-                        New
+                        Nouveau
                     </div>
                 `;
 
@@ -305,5 +341,38 @@ document.addEventListener('DOMContentLoaded', function() {
     updateImageCount();
     updateDeleteInputs();
 });
+    // Add event listeners for dynamic colors
+    document.getElementById('add-color-btn').addEventListener('click', function() {
+        const container = document.getElementById('colors-container');
+        const newColorDiv = document.createElement('div');
+        newColorDiv.className = 'flex items-center mb-2';
+        newColorDiv.innerHTML = `
+            <input type="text" 
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                   name="color[]" 
+                   placeholder="Enter color">
+            <button type="button" 
+                    class="ml-2 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg transition duration-300 ease-in-out remove-color-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </button>
+        `;
+        container.insertBefore(newColorDiv, this);
+    });
+
+    // Delegate event for remove color buttons
+    document.getElementById('colors-container').addEventListener('click', function(e) {
+        if (e.target.closest('.remove-color-btn')) {
+            const colorDiv = e.target.closest('.flex.items-center.mb-2');
+            if (document.querySelectorAll('#colors-container .flex.items-center.mb-2').length > 1) {
+                colorDiv.remove();
+            } else {
+                // If it's the last one, just clear the input
+                const input = colorDiv.querySelector('input');
+                input.value = '';
+            }
+        }
+    });
 </script>
 @endsection

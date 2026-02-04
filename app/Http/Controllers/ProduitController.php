@@ -39,7 +39,8 @@ class ProduitController extends Controller
         $validated = $request->validate([
             'name_produit' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'color' => 'nullable|string|max:50',
+            'color' => 'nullable|array',
+            'color.*' => 'nullable|string|max:50',
             'price' => 'required|numeric|min:0',
             'id_categorie' => 'nullable|exists:categories,id_categorie',
             'images.*' => 'required|image|mimes:jpg,png,jpeg,webp|max:2048',
@@ -112,7 +113,8 @@ class ProduitController extends Controller
         $validated = $request->validate([
             'name_produit' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'color' => 'nullable|string|max:50',
+            'color' => 'nullable|array',
+            'color.*' => 'nullable|string|max:50',
             'price' => 'required|numeric|min:0',
             'id_categorie' => 'nullable|exists:categories,id_categorie',
             'is_active' => 'required|boolean',
