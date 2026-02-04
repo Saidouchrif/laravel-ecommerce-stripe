@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategorieController;
+use App\Http\Controllers\ProduitController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -22,6 +23,17 @@ Route::resource('admin/categories', CategorieController::class)->middleware('aut
     'edit' => 'admin.categories.edit',
     'update' => 'admin.categories.update',
     'destroy' => 'admin.categories.destroy',
+]);
+
+// Product Routes
+Route::resource('produits', ProduitController::class)->middleware('auth')->names([
+    'index' => 'produits.index',
+    'create' => 'produits.create',
+    'store' => 'produits.store',
+    'show' => 'produits.show',
+    'edit' => 'produits.edit',
+    'update' => 'produits.update',
+    'destroy' => 'produits.destroy',
 ]);
 
 Route::middleware('guest')->group(function () {

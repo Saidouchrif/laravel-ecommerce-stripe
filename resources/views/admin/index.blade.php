@@ -39,13 +39,17 @@
                     Product Management
                 </h2>
                 <ul class="space-y-3">
-                    <li><a href="#" class="text-purple-600 hover:underline flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <li><a href="{{ route('produits.index') }}" class="text-purple-600 hover:underline flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
                         <span>View All Products</span>
-                        <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded-full">Soon</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
                     </a></li>
-                    <li><a href="#" class="text-purple-600 hover:underline flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <li><a href="{{ route('produits.create') }}" class="text-purple-600 hover:underline flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
                         <span>Add New Product</span>
-                        <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded-full">Soon</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
                     </a></li>
                 </ul>
             </div>
