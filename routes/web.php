@@ -5,12 +5,14 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/', function () {
-    return view('home.index');
-})->name('home');
+Route::get('/', [HomeController::class, 'showProductLanding'])->name('home');
+Route::get('/produits', [HomeController::class, 'showAllProducts'])->name('produits.all');
+Route::get('/produits/{id}', [HomeController::class, 'showProduct'])->name('produits.details');
+Route::get('/produits/{id}/commande', [HomeController::class, 'showCommande'])->name('produits.commande');
 
 // Admin Route
 Route::get('/admin', [AdminController::class, 'index'])->middleware('auth')->name('admin.dashboard');
@@ -26,7 +28,7 @@ Route::resource('admin/categories', CategorieController::class)->middleware('aut
 ]);
 
 // Product Routes
-Route::resource('produits', ProduitController::class)->middleware('auth')->names([
+Route::resource('admin/produits', ProduitController::class)->middleware('auth')->names([
     'index' => 'produits.index',
     'create' => 'produits.create',
     'store' => 'produits.store',
@@ -63,14 +65,16 @@ Route::get('/db-test', function () {
     }
 });
 
+// Route de changement de langue
 Route::get('/lang/{locale}', function ($locale) {
-
+    // Vérifier que la locale est valide
     if (!in_array($locale, ['fr', 'ar'])) {
         abort(404);
     }
 
-    session()->put('locale', $locale);
+    // Stocker la locale en session
+    session(['locale' => $locale]);
 
-    return redirect()->back();
-
+    // Rediriger vers la page d'accueil pour éviter les incohérences
+    return redirect()->route('home');
 })->name('lang.switch');
