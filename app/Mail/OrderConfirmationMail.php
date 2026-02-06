@@ -17,15 +17,17 @@ class OrderConfirmationMail extends Mailable
     public $produit;
     public $quantity;
     public $deliveryDays;
+    public $totalAmount;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Order $order, Produit $produit, int $quantity = 1, int $deliveryDays = 5)
+    public function __construct(Order $order, Produit $produit, int $quantity, float $totalAmount, int $deliveryDays = 5)
     {
         $this->order = $order;
         $this->produit = $produit;
         $this->quantity = $quantity;
+        $this->totalAmount = $totalAmount;
         $this->deliveryDays = $deliveryDays;
     }
 

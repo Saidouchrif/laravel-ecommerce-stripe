@@ -7,7 +7,10 @@ use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/webhook/stripe', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
 
 Route::get('/', [HomeController::class, 'showProductLanding'])->name('home');
@@ -15,6 +18,8 @@ Route::get('/produits', [HomeController::class, 'showAllProducts'])->name('produ
 Route::get('/produits/{id}', [HomeController::class, 'showProduct'])->name('produits.details');
 Route::get('/produits/{id}/commande', [HomeController::class, 'showCommande'])->middleware('auth')->name('produits.commande');
 Route::post('/orders', [OrderController::class, 'store'])->middleware('auth')->name('orders.store');
+Route::get('/stripe/success', [OrderController::class, 'checkoutSuccess'])->name('stripe.success');
+Route::get('/stripe/cancel', [OrderController::class, 'checkoutCancel'])->name('stripe.cancel');
 
 // Admin Route
 Route::get('/admin', [AdminController::class, 'index'])->middleware('auth')->name('admin.dashboard');

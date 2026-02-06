@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-        protected $table = 'orders';
+    protected $table = 'orders';
     protected $primaryKey = 'id_order';
 
     protected $fillable = [
@@ -19,6 +19,9 @@ class Order extends Model
         'payment_status',
         'is_validated',
         'total_amount',
+        'stripe_payment_id',
+        'stripe_session_id',
+        'paid_at',
     ];
 
     // Order → User

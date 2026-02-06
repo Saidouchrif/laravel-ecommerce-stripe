@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Finaliser l\'achat - ' . ($produit->name_produit_fr ?? $produit->name_produit))
+@section('title', 'Finaliser l\'achat - ' . ($produit ? ($produit->name_produit_fr ?? $produit->name_produit) : 'Confirmation'))
 
 @section('content')
     <div class="bg-gray-50 min-h-screen py-16 pt-28">
@@ -206,7 +206,7 @@
                                     </h2>
 
                                     <div class="grid sm:grid-cols-2 gap-4">
-                                        <!-- Cash on Delivery -->
+                                        <!-- Paiement à la livraison -->
                                         <label class="relative cursor-pointer group">
                                             <input type="radio" name="payment_method" value="cash" checked class="peer sr-only">
                                             <div
@@ -241,43 +241,67 @@
                                             </div>
                                         </label>
 
-                                        <!-- Online Payment (Disabled) -->
-                                        <label class="relative cursor-not-allowed opacity-60">
-                                            <input type="radio" name="payment_method" value="online" disabled class="sr-only">
+                                        <!-- Online Payment -->
+                                        <label class="relative cursor-pointer group">
+                                            <input type="radio" name="payment_method" value="online" class="peer sr-only">
                                             <div
-                                                class="p-5 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 h-full flex flex-col items-center justify-center text-center gap-2">
-                                                <div
-                                                    class="w-10 h-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center">
-                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
-                                                        </path>
-                                                    </svg>
+                                                class="p-5 rounded-2xl border-2 border-gray-200 peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 hover:bg-gray-50 transition-all h-full">
+                                                <div class="flex flex-col items-center text-center gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center mb-1">
+                                                        <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                                                            </path>
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <span class="block font-bold text-gray-900">Paiement par carte</span>
+                                                        <span class="text-xs text-gray-500 mt-1 block">Visa, Mastercard via
+                                                            Stripe</span>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <span class="block font-semibold text-gray-500">Paiement en ligne</span>
-                                                    <span
-                                                        class="inline-block mt-2 px-2 py-1 bg-gray-200 text-gray-600 text-[10px] font-bold uppercase tracking-wider rounded-md">Bientôt
-                                                        disponible</span>
+                                                <!-- Check icon when selected -->
+                                                <div
+                                                    class="absolute top-4 right-4 text-indigo-600 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
                                                 </div>
                                             </div>
                                         </label>
                                     </div>
-                                </div>
 
-                                <!-- Bouton de confirmation mobile (sticky bottom if needed, for now standard) -->
-                                <div class="pt-6">
-                                    <button type="submit"
-                                        class="group w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 px-6 rounded-2xl text-lg font-bold shadow-xl shadow-zinc-200 hover:shadow-2xl hover:shadow-zinc-300 transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3">
-                                        <span>Confirmer la commande</span>
-                                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                        </svg>
-                                    </button>
-                                    <p class="text-center text-xs text-gray-400 mt-4">En confirmant, vous acceptez nos
-                                        conditions générales de vente.</p>
+                                    <!-- Message redirection Stripe -->
+                                    <div id="stripe-info"
+                                        class="hidden mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100 animate-pulse">
+                                        <p class="text-sm font-medium text-indigo-700 flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Vous serez redirigé vers Stripe pour finaliser votre paiement sécurisé.
+                                        </p>
+                                    </div>
+
+                                    <!-- Bouton de confirmation -->
+                                    <div class="pt-8">
+                                        <button type="submit"
+                                            class="group w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 px-6 rounded-2xl text-lg font-bold shadow-xl shadow-zinc-200 hover:shadow-2xl hover:shadow-zinc-300 transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3">
+                                            <span>Confirmer la commande</span>
+                                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                            </svg>
+                                        </button>
+                                        <p class="text-center text-xs text-gray-400 mt-4">En confirmant, vous acceptez nos
+                                            conditions générales de vente.</p>
+                                    </div>
                                 </div>
                             </form>
                         @endif
@@ -285,102 +309,117 @@
                 </div>
 
                 <!-- Colonne de droite : Récapitulatif (Sticky) -->
-                <div class="lg:col-span-5 order-1 lg:order-2">
-                    <div class="lg:sticky lg:top-32 space-y-6">
-                        <!-- Carte Produit -->
-                        <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden relative">
-                            <div class="bg-gradient-to-br from-indigo-50 to-white p-6 pb-0 flex justify-center">
-                                @if($produit->images->first())
-                                    <img src="{{ asset($produit->images->first()->image_path) }}"
-                                        class="w-48 h-48 object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-500">
-                                @else
-                                    <div class="w-48 h-48 flex items-center justify-center text-gray-300">
-                                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-8">
-                                <span
-                                    class="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-wider rounded-lg mb-3">
-                                    {{ $produit->categorie->name_categorie ?? 'Produit' }}
-                                </span>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">
-                                    {{ app()->getLocale() === 'ar' ? ($produit->name_produit_ar ?? $produit->name_produit) : ($produit->name_produit_fr ?? $produit->name_produit) }}
-                                </h3>
-                                    <div class="flex items-baseline gap-2 mb-6">
-                                    <span class="text-3xl font-extrabold text-gray-900" id="total-price">{{ number_format($produit->price, 0) }}</span>
-                                    <span class="text-xl font-medium text-gray-500">DH</span>
+                @if($produit)
+                    <div class="lg:col-span-5 order-1 lg:order-2">
+                        <div class="lg:sticky lg:top-32 space-y-6">
+                            <!-- Carte Produit -->
+                            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden relative">
+                                <div class="bg-gradient-to-br from-indigo-50 to-white p-6 pb-0 flex justify-center">
+                                    @if($produit->images->first())
+                                        <img src="{{ asset($produit->images->first()->image_path) }}"
+                                            class="w-48 h-48 object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-500">
+                                    @else
+                                        <div class="w-48 h-48 flex items-center justify-center text-gray-300">
+                                            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                    @endif
                                 </div>
+                                <div class="p-8">
+                                    <span
+                                        class="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-wider rounded-lg mb-3">
+                                        {{ $produit->categorie->name_categorie ?? 'Produit' }}
+                                    </span>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+                                        {{ app()->getLocale() === 'ar' ? ($produit->name_produit_ar ?? $produit->name_produit) : ($produit->name_produit_fr ?? $produit->name_produit) }}
+                                    </h3>
+                                    <div class="flex items-baseline gap-2 mb-6">
+                                        <span class="text-3xl font-extrabold text-gray-900"
+                                            id="total-price">{{ number_format($produit->price, 0) }}</span>
+                                        <span class="text-xl font-medium text-gray-500">DH</span>
+                                    </div>
 
-                                <script>
-                                    const unitPrice = {{ $produit->price }};
-                                    
-                                    function updateQuantity(change) {
-                                        const input = document.getElementById('quantity');
-                                        let newValue = parseInt(input.value) + change;
-                                        
-                                        if (newValue < 1) newValue = 1;
-                                        
-                                        input.value = newValue;
-                                        updateTotal(newValue);
-                                    }
+                                    <script>
+                                        const unitPrice = {{ $produit->price }};
 
-                                    function updateTotal(qty) {
-                                        const total = unitPrice * qty;
-                                        // Format number with spaces as thousands separator
-                                        document.getElementById('total-price').innerText = new Intl.NumberFormat('fr-FR').format(total);
-                                    }
-                                </script>
+                                        function updateQuantity(change) {
+                                            const input = document.getElementById('quantity');
+                                            let newValue = parseInt(input.value) + change;
 
-                                <ul class="space-y-3 pt-6 border-t border-gray-100">
-                                    <li class="flex items-center gap-3 text-sm text-gray-600">
-                                        <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Livraison rapide partout au Maroc
-                                    </li>
-                                    <li class="flex items-center gap-3 text-sm text-gray-600">
-                                        <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Garantie satisfait ou remboursé
-                                    </li>
-                                    <li class="flex items-center gap-3 text-sm text-gray-600">
-                                        <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Support client 7j/7
-                                    </li>
-                                </ul>
+                                            if (newValue < 1) newValue = 1;
+
+                                            input.value = newValue;
+                                            updateTotal(newValue);
+                                        }
+
+                                        function updateTotal(qty) {
+                                            const total = unitPrice * qty;
+                                            // Format number with spaces as thousands separator
+                                            document.getElementById('total-price').innerText = new Intl.NumberFormat('fr-FR').format(total);
+                                        }
+
+                                        // Toggle Stripe redirection message
+                                        document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                                            radio.addEventListener('change', (e) => {
+                                                const stripeInfo = document.getElementById('stripe-info');
+                                                if (e.target.value === 'online') {
+                                                    stripeInfo.classList.remove('hidden');
+                                                } else {
+                                                    stripeInfo.classList.add('hidden');
+                                                }
+                                            });
+                                        });
+                                    </script>
+
+                                    <ul class="space-y-3 pt-6 border-t border-gray-100">
+                                        <li class="flex items-center gap-3 text-sm text-gray-600">
+                                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Livraison rapide partout au Maroc
+                                        </li>
+                                        <li class="flex items-center gap-3 text-sm text-gray-600">
+                                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Garantie satisfait ou remboursé
+                                        </li>
+                                        <li class="flex items-center gap-3 text-sm text-gray-600">
+                                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Support client 7j/7
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Note de sécurité -->
-                        <div class="bg-indigo-50 rounded-2xl p-5 flex items-start gap-4">
-                            <svg class="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                                </path>
-                            </svg>
-                            <div>
-                                <h4 class="font-bold text-indigo-900 text-sm">Paiement sécurisé</h4>
-                                <p class="text-xs text-indigo-700 mt-1">Vos informations sont chiffrées et sécurisées. Nous
-                                    ne partageons jamais vos données.</p>
+                            <!-- Note de sécurité -->
+                            <div class="bg-indigo-50 rounded-2xl p-5 flex items-start gap-4">
+                                <svg class="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                    </path>
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold text-indigo-900 text-sm">Paiement sécurisé</h4>
+                                    <p class="text-xs text-indigo-700 mt-1">Vos informations sont chiffrées et sécurisées. Nous
+                                        ne partageons jamais vos données.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
