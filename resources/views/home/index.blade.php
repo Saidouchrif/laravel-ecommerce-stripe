@@ -117,14 +117,14 @@
                     <p class="text-3xl font-semibold mb-8">{{ number_format($produit->price ?? 0, 2) }} DRH</p>
 
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <button
-                            class="px-8 py-4 bg-zinc-900 text-white rounded-full text-lg font-bold transition-all hover:ring-4 hover:ring-zinc-200">
+                        <a href="{{ route('produits.commande', $produit->id_produit) }}"
+                            class="px-8 py-4 bg-zinc-900 text-white rounded-full text-lg font-bold transition-all hover:ring-4 hover:ring-zinc-200 inline-block text-center">
                             {{ __('store.buy_now') }}
-                        </button>
+                        </a>
                         <a href="{{ route('produits.all') }}"
-                    class="bg-white text-zinc-900 px-8 py-4 rounded-full font-medium hover:bg-zinc-100 transition-colors inline-block">
-                    {{ __('store.view_more') }}
-                </a>
+                            class="bg-white text-zinc-900 px-8 py-4 rounded-full font-medium hover:bg-zinc-100 transition-colors inline-block">
+                            {{ __('store.view_more') }}
+                        </a>
                     </div>
 
                     <div
@@ -176,7 +176,7 @@
                     class="relative bg-white rounded-[2rem] overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.01]">
                     <div class="video-container">
                         <iframe
-                            src="https://www.youtube-nocookie.com/embed/KAvwl27SnvA?rel=0&modestbranding=1&controls=1&showinfo=0"
+                            src="https://www.youtube-nocookie.com/embed/KAvwl27SnvA?rel=0&modestbranding=1&controls=1&showinfo=0&autoplay=1&mute=1&loop=1&playlist=KAvwl27SnvA"
                             frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen>

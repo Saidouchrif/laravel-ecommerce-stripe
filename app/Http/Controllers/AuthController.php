@@ -28,7 +28,7 @@ class AuthController extends Controller
             // 2. Fetch user data from Google with SSL verification disabled for local dev
             $httpClient = new \GuzzleHttp\Client(['verify' => false]);
             $googleUser = Socialite::driver('google')->setHttpClient($httpClient)->stateless()->user();
-            
+
             if (!$googleUser || !$googleUser->getEmail()) {
                 throw new \Exception("Could not retrieve user details from Google.");
             }
@@ -122,7 +122,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->remember)) {
             $user = Auth::user();
-            
+
             // Send Welcome Email if this is the first login (and not sent yet)
             if (!$user->welcome_email_sent) {
                 try {
@@ -134,7 +134,7 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
-            return redirect('/');
+            return redirect()->intended('/');
         }
 
         return back()->withErrors([

@@ -135,9 +135,25 @@
 
                                 @foreach($colors as $index => $color)
                                     @php
+                                        $lowerColor = strtolower(trim($color));
+                                        $targetIndex = $index;
+
+                                        // Logic to swap Noir and Blanc images
+                                        if ($lowerColor === 'noir' || $lowerColor === 'blanc') {
+                                            $normalizedColors = array_map(function($c) { return strtolower(trim($c)); }, $colors);
+                                            $noirIndex = array_search('noir', $normalizedColors);
+                                            $blancIndex = array_search('blanc', $normalizedColors);
+
+                                            if ($lowerColor === 'noir' && $blancIndex !== false) {
+                                                $targetIndex = $blancIndex;
+                                            } elseif ($lowerColor === 'blanc' && $noirIndex !== false) {
+                                                $targetIndex = $noirIndex;
+                                            }
+                                        }
+
                                         // Tentative de mapping intelligent image <-> couleur si index correspond
                                         // Note: Sur la page detail, on simplifie souvent sauf si mapping strict requis
-                                        $imagePath = isset($images[$index]) ? $images[$index] : null;
+                                        $imagePath = isset($images[$targetIndex]) ? $images[$targetIndex] : null;
                                         $translatedColor = $colorTranslations[strtolower($color)] ?? ucfirst($color);
                                     @endphp
 

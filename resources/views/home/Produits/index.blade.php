@@ -116,9 +116,10 @@
                 @if($produits->count() > 0)
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         @foreach($produits as $items)
-                        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 flex flex-col h-full">
+                        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 flex flex-col h-full relative">
+                            <a href="{{ route('produits.details', $items->id_produit) }}" class="absolute inset-0 z-0"></a>
                             <!-- Image -->
-                            <div class="relative overflow-hidden aspect-square bg-gray-100">
+                            <div class="relative overflow-hidden aspect-square bg-gray-100 z-10 pointer-events-none">
                                 @if($items->images->first())
                                     <img src="{{ asset($items->images->first()->image_path) }}" 
                                          alt="{{ $items->name_produit }}" 
@@ -133,7 +134,7 @@
                                 
                                 <!-- Badge Catégorie -->
                                 @if($items->categorie)
-                                <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-indigo-600 shadow-sm">
+                                <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-indigo-600 shadow-sm z-20">
                                     {{ $items->categorie->name_categorie }}
                                 </span>
                                 @endif
@@ -165,7 +166,7 @@
                                     <span class="text-2xl font-bold text-gray-900">
                                         {{ number_format($items->price, 0) }} <span class="text-base font-normal text-gray-500">{{ __('store.currency') ?? 'DH' }}</span>
                                     </span>
-                                    <a href="{{ route('produits.details', $items->id_produit) }}" class="p-2 rounded-full bg-gray-50 hover:bg-indigo-600 hover:text-white transition-colors">
+                                    <a href="{{ route('produits.details', $items->id_produit) }}" class="p-2 rounded-full bg-gray-50 hover:bg-indigo-600 hover:text-white transition-colors relative z-10">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                         </svg>
