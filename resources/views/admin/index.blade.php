@@ -85,17 +85,6 @@
                                     {{ \App\Models\Order::count() }}
                                 </span>
                             </a></li>
-                        <li><a href="{{ route('admin.orders.create') }}"
-                                class="text-amber-600 hover:underline flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
-                                <span>Créer une nouvelle commande</span>
-                                <div class="p-1 bg-amber-500 rounded-lg text-white">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                </div>
-                            </a></li>
                     </ul>
                 </div>
 
