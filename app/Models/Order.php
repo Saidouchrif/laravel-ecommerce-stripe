@@ -22,6 +22,13 @@ class Order extends Model
         'stripe_payment_id',
         'stripe_session_id',
         'paid_at',
+        'status',
+    ];
+
+    protected $casts = [
+        'paid_at' => 'datetime',
+        'total_amount' => 'decimal:2',
+        'is_validated' => 'boolean',
     ];
 
     // Order → User

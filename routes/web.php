@@ -8,10 +8,10 @@ use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\AdminOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/webhook/stripe', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
-
 
 Route::get('/', [HomeController::class, 'showProductLanding'])->name('home');
 Route::get('/produits', [HomeController::class, 'showAllProducts'])->name('produits.all');
@@ -21,29 +21,16 @@ Route::post('/orders', [OrderController::class, 'store'])->middleware('auth')->n
 Route::get('/stripe/success', [OrderController::class, 'checkoutSuccess'])->name('stripe.success');
 Route::get('/stripe/cancel', [OrderController::class, 'checkoutCancel'])->name('stripe.cancel');
 
-// Admin Route
-Route::get('/admin', [AdminController::class, 'index'])->middleware('auth')->name('admin.dashboard');
-
-// Admin Category Routes
-Route::resource('admin/categories', CategorieController::class)->middleware('auth')->names([
-    'index' => 'admin.categories.index',
-    'create' => 'admin.categories.create',
-    'store' => 'admin.categories.store',
-    'edit' => 'admin.categories.edit',
-    'update' => 'admin.categories.update',
-    'destroy' => 'admin.categories.destroy',
-]);
-
-// Product Routes
-Route::resource('admin/produits', ProduitController::class)->middleware('auth')->names([
-    'index' => 'produits.index',
-    'create' => 'produits.create',
-    'store' => 'produits.store',
-    'show' => 'produits.show',
-    'edit' => 'produits.edit',
-    'update' => 'produits.update',
-    'destroy' => 'produits.destroy',
-]);
+// Admin Routes group
+Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::resource('categories', CategorieController::class)->names('admin.categories');
+    Route::resource('produits', ProduitController::class)->names('produits');
+    Route::resource('orders', AdminOrderController::class)->names('admin.orders');
+    Route::get('orders/{order}/invoice', [AdminOrderController::class, 'viewInvoice'])->name('admin.orders.invoice');
+    Route::post('orders/{order}/send-invoice', [AdminOrderController::class, 'sendInvoice'])->name('admin.orders.send-invoice');
+    Route::post('orders/{order}/deliver', [AdminOrderController::class, 'markAsDelivered'])->name('admin.orders.deliver');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
