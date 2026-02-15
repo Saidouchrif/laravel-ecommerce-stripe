@@ -2,14 +2,109 @@
 
 @section('title', 'Finaliser l\'achat - ' . ($produit ? ($produit->name_produit_fr ?? $produit->name_produit) : 'Confirmation'))
 
+@section('styles')
+<style>
+    @media (max-width: 767px) {
+        .order-page {
+            padding-top: 6.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .order-layout {
+            gap: 1rem;
+        }
+
+        .order-form-card,
+        .order-summary-card {
+            border-radius: 1rem;
+        }
+
+        .order-form-card {
+            padding: 1rem;
+        }
+
+        .order-step-title {
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+        }
+
+        .order-qty-panel {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .order-qty-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .order-qty-control button {
+            width: 2.7rem;
+            height: 2.7rem;
+        }
+
+        .order-qty-control input {
+            width: 3.4rem;
+            height: 2.7rem;
+            font-size: 1rem;
+        }
+
+        .order-input {
+            font-size: 0.95rem;
+            padding-top: 0.72rem;
+            padding-bottom: 0.72rem;
+        }
+
+        .order-payment-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .order-confirm-wrap {
+            padding-top: 1.25rem;
+        }
+
+        .order-confirm-btn {
+            padding-top: 0.85rem;
+            padding-bottom: 0.85rem;
+            border-radius: 0.9rem;
+            font-size: 1rem;
+        }
+
+        .order-summary-sticky {
+            gap: 1rem;
+        }
+
+        .order-summary-media {
+            padding: 1rem;
+            padding-bottom: 0;
+        }
+
+        .order-summary-image {
+            width: 9rem;
+            height: 9rem;
+        }
+
+        .order-summary-body {
+            padding: 1rem;
+        }
+
+        .order-security-note {
+            padding: 1rem;
+            gap: 0.75rem;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
-    <div class="bg-gray-50 min-h-screen py-16 pt-28">
+    <div class="order-page bg-gray-50 min-h-screen py-16 pt-28">
         <div class="container mx-auto px-4 max-w-5xl">
-            <div class="grid lg:grid-cols-12 gap-10">
+            <div class="order-layout grid lg:grid-cols-12 gap-10">
 
                 <!-- Colonne de gauche : Formulaire -->
-                <div class="lg:col-span-7 order-2 lg:order-1">
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 lg:p-10 relative overflow-hidden">
+                <div class="order-form-col lg:col-span-7 order-2 lg:order-1">
+                    <div class="order-form-card bg-white rounded-3xl shadow-sm border border-gray-100 p-8 lg:p-10 relative overflow-hidden">
 
                         @if(session('success'))
                             <!-- Message de Succès -->
@@ -62,7 +157,7 @@
                             </script>
                         @else
                             <!-- Formulaire Normal -->
-                            <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                            <h2 class="order-step-title text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
                                 <span
                                     class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">1</span>
                                 Informations de livraison
@@ -73,10 +168,10 @@
                                 <input type="hidden" name="id_produit" value="{{ $produit->id_produit }}">
 
                                 <!-- Choix de la quantité -->
-                                <div class="mb-8 p-6 bg-indigo-50/50 rounded-2xl border border-indigo-100">
+                                <div class="order-qty-panel mb-8 p-6 bg-indigo-50/50 rounded-2xl border border-indigo-100">
                                     <label class="block text-sm font-bold text-gray-900 mb-3">Quantité souhaitée</label>
-                                    <div class="flex items-center gap-4">
-                                        <div class="flex items-center bg-white border border-gray-200 rounded-xl">
+                                    <div class="order-qty-row flex items-center gap-4">
+                                        <div class="order-qty-control flex items-center bg-white border border-gray-200 rounded-xl">
                                             <button type="button" onclick="updateQuantity(-1)"
                                                 class="w-12 h-12 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:bg-gray-50 rounded-l-xl transition-colors">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,7 +215,7 @@
                                             <input type="text" name="full_name" required
                                                 value="{{ old('full_name', auth()->user()->name) }}"
                                                 placeholder="Ex : Ahmed Ben Ali"
-                                                class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all outline-none font-medium">
+                                                class="order-input w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all outline-none font-medium">
                                         </div>
                                         @error('full_name') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
                                         @enderror
@@ -140,7 +235,7 @@
                                             </div>
                                             <input type="email" name="email" required
                                                 value="{{ old('email', auth()->user()->email) }}" readonly
-                                                class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed font-medium">
+                                                class="order-input w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed font-medium">
                                         </div>
                                         <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,7 +262,7 @@
                                             </div>
                                             <input type="tel" name="phone" required value="{{ old('phone') }}"
                                                 placeholder="Ex : 06XXXXXXXX"
-                                                class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all outline-none font-medium">
+                                                class="order-input w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all outline-none font-medium">
                                         </div>
                                         @error('phone') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
                                         @enderror
@@ -190,7 +285,7 @@
                                             </div>
                                             <textarea name="address" required rows="3"
                                                 placeholder="Ex : Rue, Ville, Code postal"
-                                                class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all outline-none font-medium resize-none">{{ old('address') }}</textarea>
+                                                class="order-input w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all outline-none font-medium resize-none">{{ old('address') }}</textarea>
                                         </div>
                                         @error('address') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
                                         @enderror
@@ -199,13 +294,13 @@
 
                                 <!-- Paiement - Section Séparée Visuellement -->
                                 <div class="pt-8 border-t border-gray-100">
-                                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                                    <h2 class="order-step-title text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                                         <span
                                             class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
                                         Paiement
                                     </h2>
 
-                                    <div class="grid sm:grid-cols-2 gap-4">
+                                    <div class="order-payment-grid grid sm:grid-cols-2 gap-4">
                                         <!-- Paiement à la livraison -->
                                         <label class="relative cursor-pointer group">
                                             <input type="radio" name="payment_method" value="cash" checked class="peer sr-only">
@@ -289,9 +384,9 @@
                                     </div>
 
                                     <!-- Bouton de confirmation -->
-                                    <div class="pt-8">
+                                    <div class="order-confirm-wrap pt-8">
                                         <button type="submit"
-                                            class="group w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 px-6 rounded-2xl text-lg font-bold shadow-xl shadow-zinc-200 hover:shadow-2xl hover:shadow-zinc-300 transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3">
+                                            class="order-confirm-btn group w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 px-6 rounded-2xl text-lg font-bold shadow-xl shadow-zinc-200 hover:shadow-2xl hover:shadow-zinc-300 transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3">
                                             <span>Confirmer la commande</span>
                                             <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
@@ -310,14 +405,14 @@
 
                 <!-- Colonne de droite : Récapitulatif (Sticky) -->
                 @if($produit)
-                    <div class="lg:col-span-5 order-1 lg:order-2">
-                        <div class="lg:sticky lg:top-32 space-y-6">
+                    <div class="order-summary-col lg:col-span-5 order-1 lg:order-2">
+                        <div class="order-summary-sticky lg:sticky lg:top-32 space-y-6">
                             <!-- Carte Produit -->
-                            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden relative">
-                                <div class="bg-gradient-to-br from-indigo-50 to-white p-6 pb-0 flex justify-center">
+                            <div class="order-summary-card bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden relative">
+                                <div class="order-summary-media bg-gradient-to-br from-indigo-50 to-white p-6 pb-0 flex justify-center">
                                     @if($produit->images->first())
                                         <img src="{{ asset($produit->images->first()->image_path) }}"
-                                            class="w-48 h-48 object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-500">
+                                            class="order-summary-image w-48 h-48 object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-500">
                                     @else
                                         <div class="w-48 h-48 flex items-center justify-center text-gray-300">
                                             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,7 +423,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="p-8">
+                                <div class="order-summary-body p-8">
                                     <span
                                         class="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-wider rounded-lg mb-3">
                                         {{ $produit->categorie->name_categorie ?? 'Produit' }}
@@ -404,7 +499,7 @@
                             </div>
 
                             <!-- Note de sécurité -->
-                            <div class="bg-indigo-50 rounded-2xl p-5 flex items-start gap-4">
+                            <div class="order-security-note bg-indigo-50 rounded-2xl p-5 flex items-start gap-4">
                                 <svg class="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

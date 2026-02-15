@@ -10,14 +10,100 @@
         .product-image:hover {
             transform: scale(1.05);
         }
+
+        @media (max-width: 767px) {
+            .product-detail-page {
+                padding-top: 6.5rem;
+                padding-bottom: 2rem;
+            }
+
+            .detail-breadcrumb {
+                overflow-x: auto;
+                white-space: nowrap;
+                margin-bottom: 1rem;
+                padding-bottom: 0.25rem;
+            }
+
+            .detail-card {
+                border-radius: 1rem;
+            }
+
+            .detail-media {
+                padding: 1rem;
+            }
+
+            .detail-main-image {
+                margin-bottom: 1rem;
+            }
+
+            .detail-thumbs {
+                gap: 0.5rem;
+            }
+
+            .detail-thumb-btn {
+                width: 4rem;
+                height: 4rem;
+                padding: 0.4rem;
+            }
+
+            .detail-info {
+                padding: 1rem;
+            }
+
+            .detail-title {
+                font-size: 1.7rem;
+                line-height: 1.2;
+            }
+
+            .detail-price-row {
+                margin-bottom: 1rem;
+            }
+
+            .detail-price {
+                font-size: 2rem;
+            }
+
+            .detail-desc {
+                font-size: 1rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .detail-colors {
+                margin-bottom: 1.5rem;
+            }
+
+            .detail-color-list {
+                gap: 0.65rem;
+            }
+
+            .detail-color-chip {
+                background: #f8fafc;
+                border: 1px solid #e5e7eb;
+                border-radius: 9999px;
+                padding: 0.35rem 0.65rem;
+            }
+
+            .detail-buy-btn {
+                padding-top: 0.85rem;
+                padding-bottom: 0.85rem;
+                font-size: 1rem;
+            }
+
+            .detail-meta {
+                margin-top: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.6rem;
+            }
+        }
     </style>
 @endsection
 
 @section('content')
-<div class="bg-gray-50 min-h-screen py-12 pt-24">
+<div class="product-detail-page bg-gray-50 min-h-screen py-12 pt-24">
     <div class="container mx-auto px-4">
         <!-- Fil d'ariane -->
-        <nav class="flex text-gray-500 text-sm mb-8">
+        <nav class="detail-breadcrumb flex text-gray-500 text-sm mb-8">
             <a href="{{ route('home') }}" class="hover:text-indigo-600 transition-colors">{{ __('store.home') }}</a>
             <span class="mx-2">/</span>
             <a href="{{ route('produits.all') }}" class="hover:text-indigo-600 transition-colors">{{ __('store.products') }}</a>
@@ -33,11 +119,11 @@
             </span>
         </nav>
 
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
-            <div class="grid lg:grid-cols-2 gap-0">
+        <div class="detail-card bg-white rounded-3xl shadow-xl overflow-hidden">
+            <div class="detail-grid grid lg:grid-cols-2 gap-0">
                 <!-- Section Images -->
-                <div class="p-8 lg:p-12 bg-gray-100 flex flex-col justify-center items-center relative">
-                    <div class="relative w-full max-w-lg aspect-square flex items-center justify-center mb-8">
+                <div class="detail-media p-8 lg:p-12 bg-gray-100 flex flex-col justify-center items-center relative">
+                    <div class="detail-main-image relative w-full max-w-lg aspect-square flex items-center justify-center mb-8">
                         @if($produit->images->first())
                             <img id="main-product-image" 
                                  src="{{ asset($produit->images->first()->image_path) }}" 
@@ -54,10 +140,10 @@
 
                     <!-- Miniatures (si plus d'une image) -->
                     @if($produit->images->count() > 1)
-                    <div class="flex space-x-4 overflow-x-auto pb-4 max-w-full">
+                    <div class="detail-thumbs flex space-x-4 overflow-x-auto pb-4 max-w-full">
                         @foreach($produit->images as $index => $image)
                             <button onclick="changeImage('{{ asset($image->image_path) }}')" 
-                                    class="w-20 h-20 rounded-xl border-2 border-transparent hover:border-indigo-600 focus:border-indigo-600 transition-all overflow-hidden bg-white p-2">
+                                    class="detail-thumb-btn w-20 h-20 rounded-xl border-2 border-transparent hover:border-indigo-600 focus:border-indigo-600 transition-all overflow-hidden bg-white p-2">
                                 <img src="{{ asset($image->image_path) }}" class="w-full h-full object-contain">
                             </button>
                         @endforeach
@@ -66,14 +152,14 @@
                 </div>
 
                 <!-- Section Détails -->
-                <div class="p-8 lg:p-12 flex flex-col">
+                <div class="detail-info p-8 lg:p-12 flex flex-col">
                     @if($produit->categorie)
                         <span class="inline-block px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold mb-4 w-fit">
                             {{ $produit->categorie->name_categorie }}
                         </span>
                     @endif
 
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    <h1 class="detail-title text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                         @if(app()->getLocale() === 'fr' && !empty($produit->name_produit_fr))
                             {{ $produit->name_produit_fr }}
                         @elseif(app()->getLocale() === 'ar' && !empty($produit->name_produit_ar))
@@ -83,12 +169,12 @@
                         @endif
                     </h1>
 
-                    <div class="flex items-end gap-3 mb-8">
-                        <span class="text-4xl font-bold text-gray-900">{{ number_format($produit->price, 0) }}</span>
+                    <div class="detail-price-row flex items-end gap-3 mb-8">
+                        <span class="detail-price text-4xl font-bold text-gray-900">{{ number_format($produit->price, 0) }}</span>
                         <span class="text-xl font-medium text-gray-500 mb-1">{{ __('store.currency') ?? 'DH' }}</span>
                     </div>
 
-                    <p class="text-gray-600 text-lg leading-relaxed mb-8">
+                    <p class="detail-desc text-gray-600 text-lg leading-relaxed mb-8">
                         @if(app()->getLocale() === 'fr' && !empty($produit->description_fr))
                             {{ $produit->description_fr }}
                         @elseif(app()->getLocale() === 'ar' && !empty($produit->description_ar))
@@ -100,9 +186,9 @@
 
                     <!-- Sélection de couleur -->
                     @if(!empty($produit->color))
-                        <div class="mb-10">
+                        <div class="detail-colors mb-10">
                             <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">{{ __('store.colors.title') ?? 'Couleurs' }}</h3>
-                            <div class="flex flex-wrap gap-4">
+                            <div class="detail-color-list flex flex-wrap gap-4">
                                 @php
                                     // Fonction pour obtenir la classe CSS de couleur (réutilisation logique)
                                     function getColorClass($colorName) {
@@ -157,7 +243,7 @@
                                         $translatedColor = $colorTranslations[strtolower($color)] ?? ucfirst($color);
                                     @endphp
 
-                                    <div class="flex items-center gap-2 color-selector cursor-pointer group"
+                                    <div class="detail-color-chip flex items-center gap-2 color-selector cursor-pointer group"
                                          data-color="{{ strtolower($color) }}" 
                                          data-image="{{ $imagePath }}">
                                         <div class="w-8 h-8 rounded-full {{ getColorClass($color) }} flex-shrink-0 ring-2 ring-transparent group-hover:ring-gray-300 transition-all"></div>
@@ -171,11 +257,11 @@
                     <!-- Actions -->
                     <div class="mt-auto">
                         <a href="{{ route('produits.commande', $produit->id_produit) }}" 
-                           class="w-full block bg-zinc-900 text-white text-center py-4 rounded-xl text-lg font-bold hover:bg-zinc-800 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
+                           class="detail-buy-btn w-full block bg-zinc-900 text-white text-center py-4 rounded-xl text-lg font-bold hover:bg-zinc-800 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
                             {{ __('store.buy_now') }}
                         </a>
                         
-                        <div class="mt-6 flex items-center justify-center gap-6 text-sm text-gray-500">
+                        <div class="detail-meta mt-6 flex items-center justify-center gap-6 text-sm text-gray-500">
                             <span class="flex items-center gap-2">
                                 <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

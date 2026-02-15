@@ -2,28 +2,196 @@
 
 @section('title', __('store.products_title') ?? 'Tous les produits')
 
+@section('styles')
+<style>
+    @media (max-width: 767px) {
+        .products-page {
+            padding-top: 6.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .products-top {
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .products-title {
+            font-size: 1.65rem;
+            line-height: 1.2;
+            margin-bottom: 0;
+        }
+
+        .products-title .products-count {
+            margin-left: 0;
+            display: inline-block;
+            margin-top: 0.3rem;
+        }
+
+        .products-breadcrumb {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 0.25rem;
+        }
+
+        .products-layout {
+            gap: 1.25rem;
+        }
+
+        .products-sidebar {
+            max-width: 22rem;
+            margin-inline: auto;
+        }
+
+        .products-sidebar-card {
+            position: static;
+            top: auto;
+            padding: 0.75rem;
+            border-radius: 0.85rem;
+            box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06);
+        }
+
+        .products-sidebar-card .mb-8 {
+            margin-bottom: 0.85rem;
+        }
+
+        .products-sidebar-card h3 {
+            font-size: 0.92rem;
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+            border-left-width: 3px;
+        }
+
+        .products-sidebar-card input[type="text"],
+        .products-sidebar-card input[type="number"] {
+            font-size: 0.83rem;
+            line-height: 1.3;
+            border-radius: 0.65rem;
+            padding-top: 0.45rem;
+            padding-bottom: 0.45rem;
+        }
+
+        .products-sidebar-card .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.35rem;
+        }
+
+        .products-sidebar-card label.flex.items-center {
+            padding: 0.25rem 0.35rem;
+        }
+
+        .products-sidebar-card label.flex.items-center span {
+            font-size: 0.82rem;
+        }
+
+        .products-sidebar-card button[type="submit"] {
+            padding-top: 0.52rem;
+            padding-bottom: 0.52rem;
+            font-size: 0.86rem;
+            border-radius: 0.7rem;
+        }
+
+        .products-sidebar-card a.text-center {
+            font-size: 0.78rem;
+        }
+
+        .products-price-range {
+            gap: 0.5rem;
+        }
+
+        .products-price-range > :not([hidden]) ~ :not([hidden]) {
+            margin-left: 0 !important;
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        .product-card {
+            border-radius: 0.85rem;
+        }
+
+        .product-card-media {
+            aspect-ratio: 1 / 0.9;
+        }
+
+        .product-category-badge {
+            top: 0.45rem;
+            left: 0.45rem;
+            padding: 0.2rem 0.45rem;
+            font-size: 0.63rem;
+        }
+
+        .product-card-content {
+            padding: 0.62rem;
+        }
+
+        .product-card-title {
+            font-size: 0.9rem;
+            line-height: 1.22;
+            margin-bottom: 0.35rem;
+        }
+
+        .product-card-desc {
+            font-size: 0.74rem;
+            line-height: 1.28;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-card-footer {
+            gap: 0.35rem;
+            padding-top: 0.55rem;
+        }
+
+        .product-card-footer .product-price {
+            font-size: 0.98rem;
+            line-height: 1.2;
+        }
+
+        .product-currency {
+            font-size: 0.72rem;
+        }
+
+        .product-card-action {
+            padding: 0.35rem;
+            border-radius: 0.55rem;
+        }
+
+        .product-card-action svg {
+            width: 0.95rem;
+            height: 0.95rem;
+        }
+
+        .products-empty {
+            padding: 2rem 1.25rem;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
-<div class="bg-gray-50 min-h-screen py-12">
+<div class="products-page bg-gray-50 min-h-screen py-12">
     <div class="container mx-auto px-4">
         <!-- En-tête de page -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4 md:mb-0">
+        <div class="products-top flex flex-col md:flex-row justify-between items-center mb-8">
+            <h1 class="products-title text-3xl font-bold text-gray-900 mb-4 md:mb-0">
                 {{ __('store.our_products') }} 
-                <span class="text-indigo-600 text-lg font-medium ml-2">({{ $produits->total() }})</span>
+                <span class="products-count text-indigo-600 text-lg font-medium ml-2">({{ $produits->total() }})</span>
             </h1>
             
             <!-- Fil d'ariane -->
-            <nav class="flex text-gray-500 text-sm">
+            <nav class="products-breadcrumb flex text-gray-500 text-sm">
                 <a href="{{ route('home') }}" class="hover:text-indigo-600 transition-colors">{{ __('store.home') }}</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-900 font-medium">{{ __('store.products') }}</span>
             </nav>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-8">
+        <div class="products-layout flex flex-col lg:flex-row gap-8">
             <!-- Sidebar Filtres -->
-            <aside class="w-full lg:w-1/4">
-                <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+            <aside class="products-sidebar w-full lg:w-1/4">
+                <div class="products-sidebar-card bg-white rounded-2xl shadow-lg p-6 sticky top-24">
                     <form action="{{ route('produits.all') }}" method="GET" id="filterForm">
                         
                         <!-- Recherche -->
@@ -72,7 +240,7 @@
                             <h3 class="text-lg font-semibold text-gray-900 mb-4 border-l-4 border-indigo-500 pl-3">
                                 {{ __('store.price_range') }}
                             </h3>
-                            <div class="flex items-center space-x-2 mb-4">
+                            <div class="products-price-range flex items-center space-x-2 mb-4">
                                 <div class="w-1/2">
                                     <label class="text-xs text-gray-500 mb-1 block">{{ __('store.min') }}</label>
                                     <input type="number" 
@@ -112,14 +280,14 @@
             </aside>
 
             <!-- Grille Produits -->
-            <main class="w-full lg:w-3/4">
+            <main class="products-main w-full lg:w-3/4">
                 @if($produits->count() > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div class="products-grid grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         @foreach($produits as $items)
-                        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 flex flex-col h-full relative">
+                        <div class="product-card bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 flex flex-col h-full relative">
                             <a href="{{ route('produits.details', $items->id_produit) }}" class="absolute inset-0 z-0"></a>
                             <!-- Image -->
-                            <div class="relative overflow-hidden aspect-square bg-gray-100 z-10 pointer-events-none">
+                            <div class="product-card-media relative overflow-hidden aspect-square bg-gray-100 z-10 pointer-events-none">
                                 @if($items->images->first())
                                     <img src="{{ asset($items->images->first()->image_path) }}" 
                                          alt="{{ $items->name_produit }}" 
@@ -134,15 +302,15 @@
                                 
                                 <!-- Badge Catégorie -->
                                 @if($items->categorie)
-                                <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-indigo-600 shadow-sm z-20">
+                                <span class="product-category-badge absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-indigo-600 shadow-sm z-20">
                                     {{ $items->categorie->name_categorie }}
                                 </span>
                                 @endif
                             </div>
 
                             <!-- Contenu -->
-                            <div class="p-6 flex-1 flex flex-col">
-                                <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                            <div class="product-card-content p-6 flex-1 flex flex-col">
+                                <h3 class="product-card-title text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors">
                                     @if(app()->getLocale() === 'fr' && !empty($items->name_produit_fr))
                                         {{ $items->name_produit_fr }}
                                     @elseif(app()->getLocale() === 'ar' && !empty($items->name_produit_ar))
@@ -152,7 +320,7 @@
                                     @endif
                                 </h3>
                                 
-                                <p class="text-sm text-gray-500 mb-4 line-clamp-2 flex-1">
+                                <p class="product-card-desc text-sm text-gray-500 mb-4 line-clamp-2 flex-1">
                                     @if(app()->getLocale() === 'fr' && !empty($items->description_fr))
                                         {{ $items->description_fr }}
                                     @elseif(app()->getLocale() === 'ar' && !empty($items->description_ar))
@@ -162,11 +330,11 @@
                                     @endif
                                 </p>
 
-                                <div class="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
-                                    <span class="text-2xl font-bold text-gray-900">
-                                        {{ number_format($items->price, 0) }} <span class="text-base font-normal text-gray-500">{{ __('store.currency') ?? 'DH' }}</span>
+                                <div class="product-card-footer flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
+                                    <span class="product-price text-2xl font-bold text-gray-900">
+                                        {{ number_format($items->price, 0) }} <span class="product-currency text-base font-normal text-gray-500">{{ __('store.currency') ?? 'DH' }}</span>
                                     </span>
-                                    <a href="{{ route('produits.details', $items->id_produit) }}" class="p-2 rounded-full bg-gray-50 hover:bg-indigo-600 hover:text-white transition-colors relative z-10">
+                                    <a href="{{ route('produits.details', $items->id_produit) }}" class="product-card-action p-2 rounded-full bg-gray-50 hover:bg-indigo-600 hover:text-white transition-colors relative z-10">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                         </svg>
@@ -184,7 +352,7 @@
 
                 @else
                     <!-- Message aucun résultat -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center h-full flex flex-col items-center justify-center">
+                    <div class="products-empty bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center h-full flex flex-col items-center justify-center">
                         <div class="bg-gray-50 p-6 rounded-full mb-6">
                             <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>

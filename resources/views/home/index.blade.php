@@ -4,6 +4,10 @@
 
 @section('styles')
     <style>
+        .hero-title {
+            word-break: break-word;
+        }
+
         .product-image:hover {
             transform: scale(1.05) translateY(-10px);
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -24,28 +28,147 @@
             width: 100%;
             height: 100%;
         }
+
+        @media (max-width: 767px) {
+            .hero-section {
+                min-height: auto;
+                padding-top: 6.5rem;
+                padding-bottom: 3rem;
+            }
+
+            .hero-grid {
+                gap: 2rem;
+            }
+
+            .hero-text {
+                gap: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 2.25rem;
+                line-height: 1.15;
+                margin-bottom: 0.75rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+                line-height: 1.65;
+            }
+
+            .color-list {
+                gap: 0.75rem;
+            }
+
+            .color-selector {
+                background: #f4f4f5;
+                border-radius: 9999px;
+                padding: 0.35rem 0.75rem;
+            }
+
+            .hero-price {
+                font-size: 1.85rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .hero-actions {
+                width: 100%;
+            }
+
+            .hero-actions a {
+                width: 100%;
+                text-align: center;
+                padding: 0.85rem 1.25rem;
+            }
+
+            .hero-meta {
+                margin-top: 2rem;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .hero-image img {
+                max-width: 20rem;
+            }
+
+            .video-section {
+                padding-top: 4.5rem;
+                padding-bottom: 4.5rem;
+            }
+
+            .video-heading {
+                margin-bottom: 2.25rem;
+            }
+
+            .video-heading h2 {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+
+            .video-heading p {
+                font-size: 1rem;
+            }
+
+            .video-frame {
+                border-radius: 1.25rem;
+            }
+
+            .features-section {
+                padding-top: 5rem;
+                padding-bottom: 5rem;
+            }
+
+            .features-grid {
+                gap: 2.5rem;
+            }
+
+            .feature-card {
+                background: #ffffff;
+                border: 1px solid #e4e4e7;
+                border-radius: 1rem;
+                padding: 1.25rem;
+                box-shadow: 0 10px 28px rgba(24, 24, 27, 0.06);
+            }
+
+            .feature-icon {
+                width: 2.75rem;
+                height: 2.75rem;
+                border-radius: 0.85rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.35rem;
+                line-height: 1.3;
+                margin-bottom: 0.35rem;
+            }
+
+            .feature-card p {
+                font-size: 0.96rem;
+                line-height: 1.65;
+            }
+        }
     </style>
 @endsection
 
 @section('content')
     <!-- Hero Section -->
-    <section class="min-h-screen flex items-center pt-24 pb-20 lg:py-0">
-        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+    <section class="home-page hero-section min-h-screen flex items-center pt-24 pb-20 lg:py-0">
+        <div class="hero-grid max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
 
             <!-- Text Content -->
-            <div class="flex flex-col space-y-8 order-2 lg:order-1 text-center lg:text-start">
+            <div class="hero-text flex flex-col space-y-8 order-2 lg:order-1 text-center lg:text-start">
                 <div class="animate-fade-in opacity-0">
-                    <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-4">
+                    <h1 class="hero-title text-5xl md:text-7xl font-bold tracking-tight mb-4">
                         {{ __('store.ps5_product_name') }}
                     </h1>
                     <p
-                        class="text-xl md:text-2xl text-zinc-500 max-w-lg {{ app()->getLocale() === 'ar' ? 'lg:mr-0' : 'lg:ml-0' }} mx-auto lg:mx-0">
+                        class="hero-description text-xl md:text-2xl text-zinc-500 max-w-lg {{ app()->getLocale() === 'ar' ? 'lg:mr-0' : 'lg:ml-0' }} mx-auto lg:mx-0">
                         {{ __('store.ps5_description') }}
                     </p>
 
                     <!-- Affichage des couleurs -->
                     @if($produit && !empty($produit->color))
-                        <div class="mt-4 flex flex-wrap gap-4 justify-center lg:justify-start">
+                        <div class="color-list mt-4 flex flex-wrap gap-4 justify-center lg:justify-start">
                             @php
                                 // Fonction pour obtenir la classe CSS de couleur
                                 function getColorClass($colorName)
@@ -114,9 +237,9 @@
                 </div>
 
                 <div class="animate-slide-up opacity-0 delay-300">
-                    <p class="text-3xl font-semibold mb-8">{{ number_format($produit->price ?? 0, 2) }} DRH</p>
+                    <p class="hero-price text-3xl font-semibold mb-8">{{ number_format($produit->price ?? 0, 2) }} DRH</p>
 
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <div class="hero-actions flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         <a href="{{ route('produits.commande', $produit->id_produit) }}"
                             class="px-8 py-4 bg-zinc-900 text-white rounded-full text-lg font-bold transition-all hover:ring-4 hover:ring-zinc-200 inline-block text-center">
                             {{ __('store.buy_now') }}
@@ -128,7 +251,7 @@
                     </div>
 
                     <div
-                        class="mt-12 flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start text-sm text-zinc-400">
+                        class="hero-meta mt-12 flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start text-sm text-zinc-400">
                         <span class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
@@ -149,7 +272,7 @@
             </div>
 
             <!-- Image -->
-            <div class="order-1 lg:order-2 flex justify-center animate-fade-in opacity-0">
+            <div class="hero-image order-1 lg:order-2 flex justify-center animate-fade-in opacity-0">
                 <div class="product-image transition-transform duration-500">
                     <img id="main-product-image"
                         src="{{ $produit->images->first() ? asset($produit->images->first()->image_path) : asset('images/ps5_remote.png') }}"
@@ -161,9 +284,9 @@
     </section>
 
     <!-- Video Section -->
-    <section class="py-32 bg-zinc-50">
+    <section class="video-section py-32 bg-zinc-50">
         <div class="max-w-5xl mx-auto px-6 text-center">
-            <div class="mb-16">
+            <div class="video-heading mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">{{ __('store.video_title') }}</h2>
                 <p class="text-xl text-zinc-500">{{ __('store.video_subtitle') }}</p>
             </div>
@@ -173,7 +296,7 @@
                     class="absolute -inset-1 bg-gradient-to-r from-zinc-200 to-zinc-100 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
                 </div>
                 <div
-                    class="relative bg-white rounded-[2rem] overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.01]">
+                    class="video-frame relative bg-white rounded-[2rem] overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.01]">
                     <div class="video-container">
                         <iframe
                             src="https://www.youtube-nocookie.com/embed/KAvwl27SnvA?rel=0&modestbranding=1&controls=1&showinfo=0&autoplay=1&mute=1&loop=1&playlist=KAvwl27SnvA"
@@ -188,11 +311,11 @@
     </section>
 
     <!-- Features Section -->
-    <section class="py-40">
+    <section class="features-section py-40">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-3 gap-20">
-                <div class="space-y-4">
-                    <div class="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center">
+            <div class="features-grid grid md:grid-cols-3 gap-20">
+                <div class="feature-card space-y-4">
+                    <div class="feature-icon w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -201,8 +324,8 @@
                     <h3 class="text-2xl font-bold">{{ __('store.feature_responsive_title') }}</h3>
                     <p class="text-zinc-500 leading-relaxed">{{ __('store.feature_responsive_desc') }}</p>
                 </div>
-                <div class="space-y-4">
-                    <div class="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center">
+                <div class="feature-card space-y-4">
+                    <div class="feature-icon w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -211,8 +334,8 @@
                     <h3 class="text-2xl font-bold">{{ __('store.feature_battery_title') }}</h3>
                     <p class="text-zinc-500 leading-relaxed">{{ __('store.feature_battery_desc') }}</p>
                 </div>
-                <div class="space-y-4">
-                    <div class="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center">
+                <div class="feature-card space-y-4">
+                    <div class="feature-icon w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
