@@ -1,316 +1,414 @@
-# 🛒 OUCHRIF E-Commerce
+# OUCHRIF E-Commerce (Laravel + Stripe)
 
-A full-featured e-commerce application built with Laravel and Stripe integration. This platform specializes in selling premium gaming controllers (PS5 Master Copier replicas) with a seamless shopping experience.
+<p align="center">
+  <img src="public/images/ouchrif_icons.png" alt="OUCHRIF" width="220">
+</p>
 
-[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php)](https://php.net)
-[![Stripe](https://img.shields.io/badge/Stripe-Payments-008CDD?style=flat-square&logo=stripe)](https://stripe.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+Application e-commerce construite avec Laravel 12 pour vendre des produits (manettes PS5), avec:
+- vitrine publique
+- authentification locale + Google OAuth
+- commande avec paiement a la livraison ou Stripe Checkout
+- back-office admin pour produits, categories et commandes
+- emails de notification (client + admin)
+- support multilingue FR/AR (AR en RTL)
 
-![E-Commerce Dashboard](public/images/dashboard-preview.png)
+## Sommaire
+1. Vue d'ensemble
+2. Fonctionnalites
+3. Stack technique
+4. Architecture et communication (diagrammes)
+5. Installation locale
+6. Variables d'environnement
+7. Configuration Stripe
+8. Configuration Google OAuth
+9. Acces admin
+10. Routes principales
+11. Structure du projet
+12. Flux fonctionnels
+13. Emails envoyes
+14. Tests
+15. Deploiement
+16. Depannage rapide
 
-## ✨ Features
+## 1. Vue d'ensemble
 
-### 🛍️ Customer Features
-- **User Authentication** - Registration, login, and password reset with email verification
-- **Social Login** - Google OAuth integration for quick sign-in
-- **Product Catalog** - Browse products with filtering by category and price range
-- **Product Details** - View detailed product information with image galleries
-- **Shopping Cart** - Add products to cart and proceed to checkout
-- **Multiple Payment Options** - Cash on Delivery (COD) or secure online payment via Stripe
-- **Order Tracking** - View order history and payment status
-- **Multilingual Support** - Full support for French and Arabic (RTL)
-- **Responsive Design** - Mobile-first design with Tailwind CSS
+Le projet suit une architecture MVC Laravel classique:
+- `routes/web.php` expose les routes web
+- controllers dans `app/Http/Controllers`
+- logique metier dans les models Eloquent
+- rendu UI avec Blade dans `resources/views`
+- base de donnees MySQL/SQLite via migrations
+- integrations externes: Stripe, Google, SMTP
 
-### 👨‍💼 Admin Features
-- **Dashboard** - Overview with sales statistics and recent orders
-- **Product Management** - CRUD operations with image uploads and color variants
-- **Category Management** - Organize products into categories
-- **Order Management** - View, filter, search, and manage customer orders
-- **Invoice Generation** - Download PDF invoices using DomPDF
-- **Email Notifications** - Send order confirmations and invoices to customers
-- **Order Status Updates** - Mark orders as delivered and notify customers
+## 2. Fonctionnalites
 
-### 💳 Payment Integration
-- **Stripe Checkout** - Secure hosted payment pages
-- **Webhook Handling** - Automatic payment confirmation via Stripe webhooks
-- **Multiple Currencies** - Supports MAD (Moroccan Dirham) and other currencies
-- **Payment Status Tracking** - Real-time payment status updates
+### Cote client
+- Page d'accueil produit (`/`)
+- Catalogue avec filtres (`/produits`)
+: recherche, categories, intervalle de prix
+- Detail produit (`/produits/{id}`)
+- Commande (`/produits/{id}/commande`) reservee aux utilisateurs connectes
+- Paiement:
+: `cash` (a la livraison)
+: `online` via Stripe Checkout
+- Login/Register classique
+- Login Google (`/auth/google/redirect`)
+- Reset password (email + token)
+- Changement de langue (`/lang/fr`, `/lang/ar`)
 
-## 🛠️ Tech Stack
+### Cote admin
+- Dashboard admin (`/admin`)
+- CRUD categories
+- CRUD produits + upload images
+- Gestion commandes:
+: consultation
+: edition statut/paiement
+: marquer livree
+: annuler
+: generation facture PDF
+: envoi facture par email
 
-| Technology | Purpose |
-|------------|---------|
-| **Laravel 12.x** | PHP Web Framework |
-| **PHP 8.2+** | Server-side Language |
-| **MySQL** | Database |
-| **Blade** | Templating Engine |
-| **Tailwind CSS** | CSS Framework |
-| **Alpine.js** | JavaScript Framework |
-| **Stripe API** | Payment Processing |
-| **Laravel Socialite** | OAuth Authentication |
-| **DomPDF** | PDF Generation |
+## 3. Stack technique
 
-## 🚀 Installation
+- PHP `^8.2`
+- Laravel `^12.0`
+- Stripe PHP SDK `^19.3`
+- Laravel Socialite `^5.24`
+- DomPDF `^3.1`
+- Blade + Tailwind CSS + Alpine.js
+- DB: MySQL ou SQLite
 
-### Prerequisites
+## 4. Architecture et communication (diagrammes)
+
+### 4.1 Diagramme global
+
+```mermaid
+flowchart LR
+    U[Utilisateur Web] --> R[Routes web.php]
+    R --> HC[HomeController]
+    R --> AC[AuthController]
+    R --> OC[OrderController]
+    R --> SWC[StripeWebhookController]
+    R --> ADC[AdminController / AdminOrderController / ProduitController / CategorieController]
+
+    HC --> M[(Models Eloquent)]
+    AC --> M
+    OC --> M
+    SWC --> M
+    ADC --> M
+    M --> DB[(MySQL/SQLite)]
+
+    AC <--> G[Google OAuth]
+    OC <--> S[Stripe Checkout]
+    S --> SWC
+    OC --> MAIL[Mail SMTP]
+    SWC --> MAIL
+    ADC --> MAIL
+```
+
+### 4.2 Sequence paiement en ligne (Stripe)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant App as Laravel App
+    participant Stripe
+    participant DB as Database
+    participant Mail as Mail Server
+
+    User->>App: POST /orders (payment_method=online)
+    App->>DB: Create order (pending) + order_item
+    App->>Stripe: Create Checkout Session
+    Stripe-->>User: Hosted Checkout page
+    User->>Stripe: Pay
+    Stripe->>App: POST /webhook/stripe (checkout.session.completed)
+    App->>DB: Mark order paid + stripe_payment_id + paid_at
+    App->>Mail: Send order confirmation + admin notification
+    Stripe-->>User: Redirect to /stripe/success
+    User->>App: GET /stripe/success?session_id=...
+    App->>DB: Read order status (fallback update if webhook late)
+    App-->>User: Success UI (commande validee)
+```
+
+### 4.3 Schema simplifie des donnees
+
+```mermaid
+erDiagram
+    USERS ||--o{ ORDERS : places
+    CATEGORIES ||--o{ PRODUITS : contains
+    PRODUITS ||--o{ PRODUCT_IMAGES : has
+    ORDERS ||--o{ ORDER_ITEMS : has
+    PRODUITS ||--o{ ORDER_ITEMS : ordered
+
+    USERS {
+      bigint id PK
+      string name
+      string email
+      string provider
+      string provider_id
+      boolean welcome_email_sent
+    }
+
+    CATEGORIES {
+      bigint id_categorie PK
+      string name_categorie
+      boolean is_active
+    }
+
+    PRODUITS {
+      bigint id_produit PK
+      bigint id_categorie FK
+      string name_produit
+      text description
+      string color
+      decimal price
+      boolean is_active
+    }
+
+    PRODUCT_IMAGES {
+      bigint id_image PK
+      bigint id_produit FK
+      string image_path
+    }
+
+    ORDERS {
+      bigint id_order PK
+      bigint id_user FK
+      string payment_method
+      string payment_status
+      decimal total_amount
+      string stripe_session_id
+      string stripe_payment_id
+      datetime paid_at
+      string status
+    }
+
+    ORDER_ITEMS {
+      bigint id_order_item PK
+      bigint id_order FK
+      bigint id_produit FK
+      int quantity
+      decimal price
+    }
+```
+
+## 5. Installation locale
+
+### 5.1 Prerequis
+
 - PHP >= 8.2
 - Composer
-- MySQL or MariaDB
-- Node.js & NPM (optional, for asset compilation)
+- MySQL ou SQLite
+- Node.js/NPM (optionnel)
+- Stripe CLI (optionnel, pour webhook local)
 
-### Step-by-Step Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/laravel-ecommerce-stripe.git
-   cd laravel-ecommerce-stripe
-   ```
-
-2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
-
-3. **Copy environment file**
-   ```bash
-   cp .env.example .env
-   ```
-
-4. **Generate application key**
-   ```bash
-   php artisan key:generate
-   ```
-
-5. **Configure database**
-   - Update `.env` file with your database credentials
-   - Run migrations:
-   ```bash
-   php artisan migrate
-   ```
-
-6. **Seed the database (optional)**
-   ```bash
-   php artisan db:seed
-   ```
-
-7. **Create storage link**
-   ```bash
-   php artisan storage:link
-   ```
-
-8. **Start the development server**
-   ```bash
-   php artisan serve
-   ```
-
-Visit `http://localhost:8000` to see the application.
-
-## 🔑 Admin Access
-
-To access the admin panel:
-1. Register a new account with email: `saidouchrif16@gmail.com`
-2. Login and navigate to `/admin`
-3. **Note:** Admin access is restricted to this specific email address
-
-## 💳 Stripe Configuration
-
-### 1. Create a Stripe Account
-- Sign up at [stripe.com](https://stripe.com)
-- Get your API keys from the Dashboard
-
-### 2. Configure Environment Variables
-Add the following to your `.env` file:
-
-```env
-# Stripe Configuration
-STRIPE_KEY=pk_test_your_publishable_key
-STRIPE_SECRET=sk_test_your_secret_key
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-CASHIER_CURRENCY=mad
-CASHIER_LOGGER=stack
-```
-
-### 3. Set Up Stripe Webhook
-
-For local development, use Stripe CLI:
+### 5.2 Etapes
 
 ```bash
-# Install Stripe CLI (https://stripe.com/docs/stripe-cli)
-
-# Login to Stripe
-stripe login
-
-# Forward webhooks to your local server
-stripe listen --forward-to localhost:8000/webhook/stripe
+git clone <repo-url>
+cd laravel-ecommerce-stripe
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Copy the webhook signing secret and add it to your `.env` file as `STRIPE_WEBHOOK_SECRET`.
+Configurer ensuite la DB dans `.env`, puis:
 
-For production:
-1. Go to Stripe Dashboard → Developers → Webhooks
-2. Add endpoint: `https://yourdomain.com/webhook/stripe`
-3. Select events: `checkout.session.completed`
-4. Copy the webhook secret to your `.env`
+```bash
+php artisan migrate
+```
 
-## 🔧 Environment Variables
+Optionnel:
 
-Here's a complete example of the `.env` file:
+```bash
+php artisan db:seed
+```
+
+Lancer l'app:
+
+```bash
+php artisan serve
+```
+
+Application disponible sur `http://127.0.0.1:8000`.
+
+### 5.3 Sessions database (important)
+
+Le dashboard admin lit la table `sessions`.
+Si vous utilisez `SESSION_DRIVER=database`, creez la migration sessions si absente:
+
+```bash
+php artisan session:table
+php artisan migrate
+```
+
+Sinon utilisez:
 
 ```env
-APP_NAME="OUCHRIF E-Commerce"
-APP_ENV=local
-APP_KEY=base64:your-generated-key
-APP_DEBUG=true
-APP_URL=http://localhost:8000
+SESSION_DRIVER=file
+```
 
-LOG_CHANNEL=stack
-LOG_DEPRECATIONS_CHANNEL=null
-LOG_LEVEL=debug
+## 6. Variables d'environnement
+
+Variables minimales a definir (en plus de `.env.example`):
+
+```env
+APP_NAME=OUCHRIF
+APP_URL=http://127.0.0.1:8000
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=laravel_ecommerce
+DB_DATABASE=ouchrif
 DB_USERNAME=root
-DB_PASSWORD=your_password
+DB_PASSWORD=
 
-BROADCAST_DRIVER=log
-CACHE_DRIVER=file
-FILESYSTEM_DISK=local
-QUEUE_CONNECTION=sync
-SESSION_DRIVER=file
-SESSION_LIFETIME=120
-
-# Mail Configuration (for order notifications)
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=your-app-password
+MAIL_USERNAME=...
+MAIL_PASSWORD=...
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=your-email@gmail.com
+MAIL_FROM_ADDRESS=...
 MAIL_FROM_NAME="${APP_NAME}"
+ADMIN_EMAIL=admin@example.com
 
-# Admin Email (receives order notifications)
-ADMIN_EMAIL=your-admin-email@gmail.com
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/auth/google/callback
 
-# Google OAuth (optional)
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
-
-# Stripe Configuration
 STRIPE_KEY=pk_test_...
 STRIPE_SECRET=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-CASHIER_CURRENCY=mad
-CASHIER_LOGGER=stack
 ```
 
-## 📁 Project Structure
+## 7. Configuration Stripe
 
-```
-laravel-ecommerce-stripe/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── AuthController.php          # Authentication logic
-│   │   │   ├── AdminController.php         # Admin panel
-│   │   │   ├── OrderController.php         # Order & Stripe handling
-│   │   │   ├── StripeWebhookController.php # Webhook processing
-│   │   │   └── ProduitController.php       # Product management
-│   │   └── Middleware/
-│   │       └── SetLocale.php               # Language switching
-│   ├── Models/
-│   │   ├── User.php
-│   │   ├── Produit.php
-│   │   ├── Categorie.php
-│   │   ├── Order.php
-│   │   └── OrderItem.php
-│   └── Mail/                               # Mailable classes
-├── config/
-│   └── services.php                        # Stripe & OAuth config
-├── database/
-│   └── migrations/                         # Database schema
-├── lang/
-│   ├── ar/                                 # Arabic translations
-│   └── fr/                                 # French translations
-├── public/
-│   └── images/                             # Product images
-├── resources/
-│   └── views/
-│       ├── auth/                           # Login, Register
-│       ├── admin/                          # Admin panel views
-│       ├── home/                           # Frontend views
-│       ├── emails/                         # Email templates
-│       └── layouts/                        # Blade layouts
-├── routes/
-│   └── web.php                             # Application routes
-└── storage/
-    └── app/public/images/                  # Uploaded images
+### 7.1 Webhook local (Stripe CLI)
+
+```bash
+stripe login
+stripe listen --forward-to localhost:8000/webhook/stripe
 ```
 
-## 🎯 Key Features Explained
+Copier le secret donne par Stripe CLI dans:
+- `STRIPE_WEBHOOK_SECRET`
 
-### Payment Flow
-1. Customer adds products to cart and proceeds to checkout
-2. Chooses payment method (Cash on Delivery or Online)
-3. For online payments:
-   - Stripe Checkout Session is created
-   - Customer is redirected to Stripe's secure payment page
-   - After payment, customer returns to success page
-   - Webhook confirms payment and updates order status
-   - Confirmation emails sent to customer and admin
+### 7.2 Route webhook
 
-### Multilingual Support
-- Switch between French and Arabic
-- RTL (Right-to-Left) support for Arabic
-- All content translated including emails
+- Route: `POST /webhook/stripe`
+- Controleur: `StripeWebhookController@handle`
+- CSRF: exclue dans `bootstrap/app.php`
 
-### Image Management
-- Multiple images per product
-- Automatic image resizing and optimization
-- Color variants with image association
+## 8. Configuration Google OAuth
 
-### Email Notifications
-- Welcome email on registration
-- Order confirmation to customer
-- New order notification to admin
-- Invoice emails with PDF attachment
-- Order status update notifications
+Dans Google Cloud Console:
+- ajouter URL de callback:
+`http://127.0.0.1:8000/auth/google/callback`
 
-## 🧪 Testing
+Puis definir:
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI`
 
-### Run Tests
+## 9. Acces admin
+
+Actuellement, l'acces dashboard est controle par email hardcode:
+- `saidouchrif16@gmail.com`
+
+Fichier:
+- `app/Http/Controllers/AdminController.php`
+
+Si vous voulez un autre admin, modifiez cette condition ou mettez un vrai systeme de roles.
+
+## 10. Routes principales
+
+| Route | Methode | Description |
+|---|---|---|
+| `/` | GET | Landing produit |
+| `/produits` | GET | Catalogue + filtres |
+| `/produits/{id}` | GET | Detail produit |
+| `/produits/{id}/commande` | GET | Form commande (auth) |
+| `/orders` | POST | Creation commande |
+| `/stripe/success` | GET | Retour paiement ok |
+| `/stripe/cancel` | GET | Retour paiement annule |
+| `/webhook/stripe` | POST | Webhook Stripe |
+| `/register` `/login` | GET/POST | Auth locale |
+| `/auth/google/redirect` | GET | OAuth Google |
+| `/auth/google/callback` | GET | Callback Google |
+| `/forgot-password` | GET/POST | Demande reset |
+| `/reset-password/{token}` | GET | Form reset |
+| `/reset-password` | POST | Validation reset |
+| `/lang/{locale}` | GET | Switch langue FR/AR |
+| `/admin/...` | REST | Back-office (auth) |
+
+## 11. Structure du projet
+
+```text
+app/
+  Http/Controllers/
+  Http/Middleware/SetLocale.php
+  Mail/
+  Models/
+bootstrap/app.php
+config/services.php
+config/mail.php
+database/migrations/
+lang/fr, lang/ar
+resources/views/
+  home/
+  auth/
+  admin/
+  emails/
+routes/web.php
+```
+
+## 12. Flux fonctionnels
+
+### 12.1 Commande cash
+1. User ouvre la page commande (auth)
+2. `POST /orders` avec `payment_method=cash`
+3. Creation order + order_item
+4. Envoi emails client/admin
+5. Retour sur la page commande avec message de succes
+
+### 12.2 Commande online
+1. `POST /orders` avec `payment_method=online`
+2. Creation order pending + order_item
+3. Redirection Stripe Checkout
+4. Stripe webhook marque la commande paid
+5. Emails envoyes
+6. Redirect user vers `/stripe/success`
+
+## 13. Emails envoyes
+
+- `WelcomeUserMail` (inscription / premier login)
+- `OrderConfirmationMail` (client)
+- `NewOrderAdminMail` (admin)
+- `AdminOrderStatusUpdateMail` (admin, changement statut)
+- facture PDF envoyee depuis `AdminOrderController@sendInvoice`
+
+## 14. Tests
+
+Lancer:
+
 ```bash
 php artisan test
 ```
 
-### Test Stripe Payments
-Use Stripe's test card numbers:
-- **Success:** `4242 4242 4242 4242`
-- **Decline:** `4000 0000 0000 0002`
-- **3D Secure:** `4000 0025 0000 3155`
+Le dossier `tests/Feature/Auth` contient surtout des tests auth de base Laravel.
 
-For any test card:
-- Expiry: Any future date (e.g., 12/25)
-- CVC: Any 3 digits (e.g., 123)
+## 15. Deploiement
 
-## 🚢 Deployment
+Checklist mini:
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- DB prod configuree
+- SMTP prod configure
+- cles Stripe prod configurees
+- webhook Stripe prod pointe vers `https://<domain>/webhook/stripe`
+- optimiser Laravel:
 
-### Production Checklist
-- [ ] Set `APP_ENV=production`
-- [ ] Set `APP_DEBUG=false`
-- [ ] Configure production database
-- [ ] Set up production Stripe keys
-- [ ] Configure SSL certificate
-- [ ] Set up proper mail driver (Postmark, SES, etc.)
-- [ ] Configure Stripe webhooks for production URL
-- [ ] Run `php artisan optimize`
-- [ ] Set up queue worker for emails (optional)
-
-### Laravel Optimization
 ```bash
 php artisan config:cache
 php artisan route:cache
@@ -318,44 +416,24 @@ php artisan view:cache
 php artisan optimize
 ```
 
-## 🛣️ Future Improvements
+## 16. Depannage rapide
 
-- [ ] **Inventory Management** - Stock tracking with low stock alerts
-- [ ] **Coupons & Discounts** - Promotional code system
-- [ ] **Product Reviews** - Customer rating and review system
-- [ ] **Wishlist** - Save favorite products for later
-- [ ] **Multi-vendor Support** - Allow multiple sellers
-- [ ] **Advanced Analytics** - Sales reports and charts
-- [ ] **Shipping Integration** - Integration with shipping providers
-- [ ] **Mobile App** - React Native or Flutter application
-- [ ] **API Endpoints** - RESTful API for mobile apps
-- [ ] **Real-time Notifications** - WebSocket notifications
+- Erreur webhook Stripe:
+: verifier `STRIPE_WEBHOOK_SECRET`
+: verifier endpoint `/webhook/stripe`
 
-## 🤝 Contributing
+- Impossible d'entrer dans admin:
+: verifier email dans `AdminController`
 
-Contributions are welcome! Please follow these steps:
+- Erreur reset password / mails:
+: verifier config SMTP et `MAIL_FROM_*`
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-## 👨‍💻 Author
-
-**OUCHRIF** - [Your GitHub Profile](https://github.com/Saidouchrif)
-
-## 🙏 Acknowledgments
-
-- [Laravel](https://laravel.com) - The PHP Framework
-- [Stripe](https://stripe.com) - Payment Processing
-- [Tailwind CSS](https://tailwindcss.com) - CSS Framework
-- [Alpine.js](https://alpinejs.dev) - JavaScript Framework
+- Erreur session table manquante:
+: creer migration sessions (voir section 5.3)
 
 ---
 
-<p align="center">Made with ❤️ using Laravel & Stripe</p>
+Si vous voulez, je peux aussi vous generer:
+- un `README-DEV.md` (workflow equipe)
+- un `README-DEPLOY.md` (Nginx + SSL + queue worker)
+- un schema UML plus detaille (classes/controllers/services)
